@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Quiz Bot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+            letter-spacing: 1px;
+        }
+        .admin-nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .admin-nav a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+        }
+        .admin-nav a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .tab-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Status Cards */
+        .status-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .status-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 0.9em;
+        }
+        .status-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status-active { color: #28a745; }
+        .status-inactive { color: #dc3545; }
+        
+        /* Game Controls */
+        .game-controls {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .game-controls h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-start {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        .btn-end {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+        .btn-next {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        .btn-grade {
+            background: linear-gradient(135deg, #fd7e14, #e55a00);
+            color: white;
+        }
+        .btn-reset {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .control-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Answers Table */
+        .answers-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .answers-section h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .correct-answer {
+            background-color: #d4edda !important;
+        }
+        .answer-cell {
+            position: relative;
+        }
+        .answer-cell input[type="checkbox"] {
+            margin-left: 10px;
+            transform: scale(1.2);
+        }
+        
+        /* Leaderboard */
+        .leaderboard-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .leaderboard-section h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        .leaderboard-rank {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 40px;
+        }
+        .leaderboard-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+        .leaderboard-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .leaderboard-score {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .leaderboard-percentage {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        /* Users Tab Styles */
+        .users-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .users-section h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .user-id {
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .nickname {
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .status-participant {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .remove-button {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        .remove-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+        .remove-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stats-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .stats-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 0.9em;
+        }
+        .stats-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stats-total { color: #007bff; }
+        .stats-participants { color: #28a745; }
+        .stats-inactive { color: #6c757d; }
+        
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* Game Info */
+        .game-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .game-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .control-buttons {
+                grid-template-columns: 1fr;
+            }
+            .status-cards {
+                grid-template-columns: 1fr;
+            }
+            .tab-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Quiz Bot Admin Dashboard</h1>
+        </header>
+
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('manage')">🎮 Game</button>
+                <button class="tab-button" onclick="showTab('answers')">📝 Answers</button>
+                <button class="tab-button" onclick="showTab('leaderboard')">🏆 Leaderboard</button>
+                <button class="tab-button" onclick="showTab('users')">👥 Users</button>
+            </div>
+            
+            <!-- Manage Tab -->
+            <div id="manage" class="tab-content active">
+                <div class="status-cards">
+                    <div class="status-card">
+                        <h3>Game Status</h3>
+                        <div class="status-value {% if game_state.is_active %}status-active{% else %}status-inactive{% endif %}">
+                            {% if game_state.is_active %}🟢 ACTIVE{% else %}🔴 INACTIVE{% endif %}
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Current Question</h3>
+                        <div class="status-value">{{ game_state.current_question or 'None' }}</div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Registered Players</h3>
+                        <div class="status-value">{{ player_count }}</div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Questions Asked</h3>
+                        <div class="status-value">{{ question_count }}</div>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <h2>🎮 Game Controls</h2>
+                    <div class="control-buttons">
+                        {% if not game_state.is_active %}
+                            <form method="POST" action="{{ url_for('admin_start_game') }}" style="display: inline;">
+                                <button type="submit" class="control-button btn-start">🎮 Start Game</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('admin_end_game') }}" style="display: inline;">
+                                <button type="submit" class="control-button btn-end">🏁 End Game</button>
+                            </form>
+                        {% endif %}
+
+                        {% if game_state.is_active and not game_state.grading_phase %}
+                            <form method="POST" action="{{ url_for('admin_next_question') }}" style="display: inline;">
+                                <button type="submit" class="control-button btn-next">📝 Next Question</button>
+                            </form>
+                        {% endif %}
+
+                        {% if game_state.is_active and not game_state.grading_phase %}
+                            <form method="POST" action="{{ url_for('admin_start_grading') }}" style="display: inline;">
+                                <button type="submit" class="control-button btn-grade">📊 Start Grading</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="game-info">
+                    <h3>📊 Game Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Game Status:</span>
+                        <span class="info-value">{% if game_state.is_active %}Active{% else %}Inactive{% endif %}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Current Question:</span>
+                        <span class="info-value">{{ game_state.current_question or 'None' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Collecting Answers:</span>
+                        <span class="info-value">{% if game_state.collecting_answers %}Yes{% else %}No{% endif %}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Grading Phase:</span>
+                        <span class="info-value">{% if game_state.grading_phase %}Yes{% else %}No{% endif %}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Started By:</span>
+                        <span class="info-value">{{ game_state.started_by or 'None' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Start Time:</span>
+                        <span class="info-value">{{ game_state.start_time or 'None' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answers Tab -->
+            <div id="answers" class="tab-content">
+                <div class="answers-section">
+                    <h2>📝 Player Answers</h2>
+                    <div class="table-container">
+                        <table id="answers-table">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    {% for question in questions %}
+                                    <th>Q{{ question.split('_')[1] }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in table_data %}
+                                <tr>
+                                    <td>{{ row.player }}</td>
+                                    {% for question in questions %}
+                                    {% set q_num = question.split('_')[1] %}
+                                    {% set cell_data = row['q' + q_num] %}
+                                    <td class="answer-cell {{ 'correct-answer' if cell_data.is_correct else '' }}">
+                                        {{ cell_data.answer }}
+                                        {% if cell_data.answer %}
+                                        <input type="checkbox" 
+                                               data-correct-key="{{ cell_data.correct_key }}" 
+                                               onchange="toggleCorrect(this)"
+                                               {% if cell_data.is_correct %}checked{% endif %}>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div id="leaderboard" class="tab-content">
+                <div class="leaderboard-section">
+                    <h2>🏆 Leaderboard</h2>
+                    {% for player in leaderboard %}
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">{{ loop.index }}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">{{ player.nickname }}</div>
+                            <div class="leaderboard-score">{{ player.score }} / {{ player.total_questions }} questions</div>
+                        </div>
+                        <div class="leaderboard-percentage">{{ player.percentage }}%</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <!-- Stats Cards -->
+                <div class="stats-cards">
+                    <div class="stats-card">
+                        <h3>Total Users</h3>
+                        <div class="stats-value stats-total">{{ users|length }}</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Current Participants</h3>
+                        <div class="stats-value stats-participants">{{ users|selectattr('is_participant')|list|length }}</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Inactive Users</h3>
+                        <div class="stats-value stats-inactive">{{ users|rejectattr('is_participant')|list|length }}</div>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="users-section">
+                    <h2>📋 Registered Users</h2>
+                    <div class="table-container">
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Nickname</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td class="user-id">{{ user.user_id }}</td>
+                                    <td class="nickname">{{ user.nickname }}</td>
+                                    <td>
+                                        {% if user.is_participant %}
+                                            <span class="status-badge status-participant">🎮 Active Participant</span>
+                                        {% else %}
+                                            <span class="status-badge status-inactive">😴 Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="/admin/remove_user/{{ user.user_id }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove {{ user.nickname }}? This will delete all their data including answers and game history.')">
+                                            <button type="submit" class="remove-button">🗑️ Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Button -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px;">
+            <a href="/admin/logout" style="background: linear-gradient(135deg, #dc3545, #e74c3c); color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">🚪 Logout</a>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval = null;
+        let currentTab = 'manage';
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Update current tab and manage auto-refresh
+            currentTab = tabName;
+            manageAutoRefresh();
+        }
+
+        function manageAutoRefresh() {
+            // Clear existing interval
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+            
+            // Start auto-refresh for answers, leaderboard, and users tabs
+            if (currentTab === 'answers' || currentTab === 'leaderboard' || currentTab === 'users') {
+                // Refresh immediately when switching to these tabs
+                refreshData();
+                // Then continue with regular intervals
+                refreshInterval = setInterval(refreshData, 3000); // Refresh every 3 seconds
+            }
+        }
+
+        function refreshData() {
+            fetch('/api/refresh')
+                .then(response => response.json())
+                .then(data => {
+                    if (currentTab === 'answers') {
+                        updateAnswersTable(data);
+                    } else if (currentTab === 'leaderboard') {
+                        updateLeaderboard(data.leaderboard);
+                    } else if (currentTab === 'users') {
+                        updateUsersTable(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing data:', error);
+                });
+        }
+
+        function updateAnswersTable(data) {
+            const tableBody = document.querySelector('#answers-table tbody');
+            if (!tableBody) return;
+
+            let html = '';
+            data.table_data.forEach(row => {
+                html += `<tr><td>${row.player}</td>`;
+                data.questions.forEach(question => {
+                    const qNum = question.split('_')[1];
+                    const cellData = row[`q${qNum}`];
+                    const correctClass = cellData.is_correct ? 'correct-answer' : '';
+                    const checkbox = cellData.answer ? 
+                        `<input type="checkbox" data-correct-key="${cellData.correct_key}" onchange="toggleCorrect(this)" ${cellData.is_correct ? 'checked' : ''}>` : '';
+                    
+                    html += `<td class="answer-cell ${correctClass}">${cellData.answer} ${checkbox}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        function updateLeaderboard(leaderboard) {
+            const leaderboardSection = document.querySelector('#leaderboard .leaderboard-section');
+            if (!leaderboardSection) return;
+
+            let html = '<h2>🏆 Leaderboard</h2>';
+            leaderboard.forEach((player, index) => {
+                html += `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">${index + 1}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${player.nickname}</div>
+                            <div class="leaderboard-score">${player.score} / ${player.total_questions} questions</div>
+                        </div>
+                        <div class="leaderboard-percentage">${player.percentage}%</div>
+                    </div>
+                `;
+            });
+            
+            leaderboardSection.innerHTML = html;
+        }
+
+        function updateUsersTable(data) {
+            // Update stats cards
+            const statsCards = document.querySelector('.stats-cards');
+            if (statsCards) {
+                const totalUsers = data.users ? Object.keys(data.users).length : 0;
+                const participants = data.game_state ? Object.keys(data.game_state.participants || {}).length : 0;
+                const inactive = totalUsers - participants;
+                
+                statsCards.innerHTML = `
+                    <div class="stats-card">
+                        <h3>Total Users</h3>
+                        <div class="stats-value stats-total">${totalUsers}</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Current Participants</h3>
+                        <div class="stats-value stats-participants">${participants}</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Inactive Users</h3>
+                        <div class="stats-value stats-inactive">${inactive}</div>
+                    </div>
+                `;
+            }
+
+            // Update users table
+            const tableBody = document.querySelector('#users-table tbody');
+            if (!tableBody || !data.users) return;
+
+            let html = '';
+            Object.entries(data.users).forEach(([user_id, nickname]) => {
+                const isParticipant = data.game_state && data.game_state.participants && user_id in data.game_state.participants;
+                const statusBadge = isParticipant ? 
+                    '<span class="status-badge status-participant">🎮 Active Participant</span>' :
+                    '<span class="status-badge status-inactive">😴 Inactive</span>';
+                
+                html += `
+                    <tr>
+                        <td class="user-id">${user_id}</td>
+                        <td class="nickname">${nickname}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <form method="POST" action="/admin/remove_user/${user_id}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove ${nickname}? This will delete all their data including answers and game history.')">
+                                <button type="submit" class="remove-button">🗑️ Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        function toggleCorrect(checkbox) {
+            const correctKey = checkbox.dataset.correctKey;
+            
+            fetch('/api/toggle_correct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    correct_key: correctKey
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the row styling
+                    const row = checkbox.closest('tr');
+                    if (data.is_correct) {
+                        checkbox.closest('td').classList.add('correct-answer');
+                    } else {
+                        checkbox.closest('td').classList.remove('correct-answer');
+                    }
+                    
+                    // Update leaderboard if needed
+                    if (data.leaderboard) {
+                        updateLeaderboard(data.leaderboard);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert checkbox state
+                checkbox.checked = !checkbox.checked;
+            });
+        }
+
+        // Initialize auto-refresh on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            manageAutoRefresh();
+        });
+    </script>
+</body>
+</html>

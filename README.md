@@ -1,19 +1,27 @@
-# Quiz Bot with Docker and RabbitMQ
+# Quiz Bot & Web Application
 
-A Telegram quiz bot with unified web admin dashboard, containerized with Docker Compose and using RabbitMQ for message queuing.
+A full-featured Quiz platform combining a Telegram Bot, a mobile-optimized React Web App for players, and a unified Admin Dashboard, powered by a single NestJS backend (Node.js/TypeScript), SQLite, and RabbitMQ.
 
 ## Architecture
 
-- **Telegram Bot**: Handles user interactions and commands
-- **Web Admin Dashboard**: Flask-based unified admin interface with real-time updates
-- **RabbitMQ**: Message queue for communication between bot and webapp
-- **SQLite Database**: Stores users, answers, and game state
+- **Web Application (React + TypeScript + Tailwind CSS)**:
+  - **Mobile-first Player UI**: Register nickname, join active games, view live questions, submit/edit answers with real-time feedback, and view the live leaderboard.
+  - **Host / Admin Dashboard**: Start games (with automatic backups), advance questions, manage grading matrix with one-click toggles, manage users, and observe the live leaderboard.
+- **Backend (NestJS + TypeScript)**:
+  - Unified REST API & Socket.IO WebSocket Gateway for instant real-time synchronization across web clients.
+  - SQLite database access (`better-sqlite3` with WAL mode).
+  - RabbitMQ Producer for message broadcasting to Telegram players.
+- **Telegram Bot (Python)**:
+  - Interacts with players via Telegram commands (`/register`, `/join_game`, `/status`, answers).
+  - Consumes RabbitMQ broadcasts to notify Telegram players of game events in real-time.
+- **RabbitMQ**: Message queue bridging the NestJS backend and the Telegram bot.
+- **SQLite Database**: Single source of truth (`db/quiz.db`) shared seamlessly by the NestJS backend and Telegram bot.
 
 ## Services
 
-- `bot`: Telegram bot service
-- `webapp`: Flask web application with unified dashboard
-- `rabbitmq`: RabbitMQ message broker
+- `webapp`: NestJS backend + built React frontend (Port 5000)
+- `bot`: Python Telegram bot service
+- `rabbitmq`: RabbitMQ message broker (Port 5672, Management UI 15672)
 
 ## Features
 

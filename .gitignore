@@ -30,9 +30,3 @@ Thumbs.db
 
 # Log files
 *.log
-
-# Node.js
-node_modules/
-dist/
-.vite/
-npm-debug.log*

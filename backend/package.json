@@ -1,6 +1,6 @@
 {
   "name": "quiz-bot-backend",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "NestJS backend for Quiz Bot",
   "scripts": {
     "build": "nest build",

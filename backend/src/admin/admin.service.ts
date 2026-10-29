@@ -50,9 +50,25 @@ export class AdminService {
     const correctAnswers = this.db.getCorrectAnswers();
     const leaderboard = this.db.calculateLeaderboard();
 
-    const questions = Object.keys(answers)
-      .filter((q) => q.startsWith('question_'))
-      .sort((a, b) => parseInt(a.split('_')[1], 10) - parseInt(b.split('_')[1], 10));
+    const answerKeys = this.db.getQuestionAnswerKeys();
+
+    const questionNumbers = new Set<number>();
+    for (const q of Object.keys(answers)) {
+      if (q.startsWith('question_')) {
+        const num = parseInt(q.split('_')[1], 10);
+        if (!isNaN(num)) questionNumbers.add(num);
+      }
+    }
+    if (gameState.current_question && gameState.current_question > 0) {
+      questionNumbers.add(gameState.current_question);
+    }
+    for (const qNum of Object.keys(answerKeys)) {
+      const num = parseInt(qNum, 10);
+      if (!isNaN(num)) questionNumbers.add(num);
+    }
+
+    const sortedNums = Array.from(questionNumbers).sort((a, b) => a - b);
+    const questions = sortedNums.map((n) => `question_${n}`);
 
     const tableData: any[] = [];
     for (const [userId, player] of Object.entries(participants)) {
@@ -87,7 +103,6 @@ export class AdminService {
       });
     }
 
-    const answerKeys = this.db.getQuestionAnswerKeys();
 
     return {
       table_data: tableData,

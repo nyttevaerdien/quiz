@@ -614,6 +614,36 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       })}
                     </tr>
                   ))}
+
+                  {/* LAST ROW: CORRECT ANSWER KEYS */}
+                  <tr className="bg-amber-500/10 dark:bg-amber-500/15 border-t-2 border-amber-500/40">
+                    <td className="p-3 font-bold text-amber-700 dark:text-amber-400 whitespace-nowrap">
+                      <div className="flex items-center space-x-1.5">
+                        <KeyRound className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Answer Keys</span>
+                      </div>
+                    </td>
+                    {dashboardData.questions.map((q) => {
+                      const qNum = parseInt(q.split('_')[1], 10);
+                      const keyAnswer = dashboardData.answer_keys?.[qNum] ?? (dashboardData.answer_keys as any)?.[String(qNum)];
+                      return (
+                        <td key={`key-${q}`} className="p-3 text-center align-middle">
+                          {keyAnswer ? (
+                            <span
+                              className="inline-block px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/20 dark:bg-amber-400/20 text-amber-900 dark:text-amber-200 border border-amber-500/30 max-w-[160px] truncate"
+                              title={keyAnswer}
+                            >
+                              {keyAnswer}
+                            </span>
+                          ) : (
+                            <span className="text-[11px] italic text-slate-400 dark:text-slate-500">
+                              Not set
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
                 </tbody>
               </table>
             </div>

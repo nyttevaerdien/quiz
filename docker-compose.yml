@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: quiz-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile.backend
+    container_name: quiz-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - RABBITMQ_URL=amqp://admin:admin123@rabbitmq:5672/
+      - DATABASE_PATH=/app/db/quiz.db
+      - ADMIN_PASSWORD=admin
+    volumes:
+      - ./db:/app/db
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: quiz-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: quiz-bot
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - RABBITMQ_URL=amqp://admin:admin123@rabbitmq:5672/
+      - DATABASE_PATH=/app/db/quiz.db
+    volumes:
+      - ./db:/app/db
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:

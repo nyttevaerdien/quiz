@@ -30,3 +30,11 @@ Thumbs.db
 
 # Log files
 *.log
+
+# Node dependencies and build outputs
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+*.tsbuildinfo
+

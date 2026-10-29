@@ -252,14 +252,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
       <div className="flex items-center justify-between bg-white/95 dark:bg-[#160f26] p-3.5 rounded-2xl shadow-md border border-orange-200/80 dark:border-purple-900/50 transition-colors">
         <div className="flex items-center space-x-2">
           <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-          <span className="font-extrabold text-slate-900 dark:text-orange-100 text-sm sm:text-base">Witch Host Coven</span>
+          <span className="font-extrabold text-slate-900 dark:text-orange-100 text-sm sm:text-base">Host Control Center</span>
         </div>
         <button
           onClick={onRefreshDashboard}
           className="p-2 text-slate-500 dark:text-purple-300 hover:text-orange-600 dark:hover:text-orange-300 rounded-lg hover:bg-orange-50 dark:hover:bg-purple-950/60 transition-all text-xs flex items-center space-x-1"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Refresh Sight</span>
+          <span className="hidden sm:inline">Refresh Data</span>
         </button>
       </div>
 

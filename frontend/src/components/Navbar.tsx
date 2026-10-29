@@ -56,7 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <User className="w-3.5 h-3.5" />
-              <span>Player 👻</span>
+              <span>Player</span>
             </button>
             <button
               onClick={() => onRoleChange('admin')}
@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Shield className="w-3.5 h-3.5" />
-              <span>Host 🧙</span>
+              <span>Host</span>
             </button>
           </div>
 
@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onAdminLogout}
               className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 font-medium px-2 py-1 rounded-lg hover:bg-rose-100/50 dark:hover:bg-rose-950/40 transition-all"
             >
-              Vanish
+              Logout
             </button>
           )}
         </div>

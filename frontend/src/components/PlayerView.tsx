@@ -10,9 +10,8 @@ import {
   Users,
   Trophy,
   AlertCircle,
-  Skull,
   Ghost,
-  Flame,
+  Sparkles,
 } from 'lucide-react';
 
 interface PlayerViewProps {
@@ -134,7 +133,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           }`}
         >
           <Ghost className="w-4 h-4" />
-          <span>Haunted Arena</span>
+          <span>Game Session</span>
         </button>
 
         <button
@@ -146,14 +145,14 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           }`}
         >
           <Trophy className="w-4 h-4 text-amber-300" />
-          <span>Crypt of Fame</span>
+          <span>Leaderboard</span>
         </button>
       </div>
 
       {/* Global Live Announcement */}
       {announcement && (
         <div className="bg-orange-100/90 dark:bg-purple-950/80 border border-orange-300 dark:border-purple-700/80 p-3 rounded-xl flex items-start space-x-2 text-orange-950 dark:text-orange-200 text-xs sm:text-sm shadow-md animate-pulse">
-          <Flame className="w-4 h-4 shrink-0 text-orange-500 mt-0.5" />
+          <Sparkles className="w-4 h-4 shrink-0 text-orange-500 mt-0.5" />
           <span>{announcement}</span>
         </div>
       )}
@@ -161,8 +160,8 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       {activeTab === 'leaderboard' ? (
         <div className="bg-white/95 dark:bg-[#160f26] p-4 rounded-2xl shadow-md border border-orange-200/80 dark:border-purple-900/50 transition-colors">
           <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-orange-200 mb-3 flex items-center space-x-2">
-            <Skull className="w-5 h-5 text-orange-500" />
-            <span>Crypt Standings</span>
+            <Trophy className="w-5 h-5 text-amber-500" />
+            <span>Live Standings</span>
           </h2>
           <LeaderboardView leaderboard={leaderboard} currentUserNickname={nickname} />
         </div>
@@ -173,11 +172,11 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             <div className="bg-white/95 dark:bg-[#160f26] p-5 rounded-2xl shadow-md border border-orange-200/80 dark:border-purple-900/50 space-y-4 transition-colors">
               <div className="text-center space-x-1">
                 <div className="w-14 h-14 bg-gradient-to-tr from-orange-500 to-amber-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md shadow-orange-500/30 text-2xl">
-                  👻
+                  🎃
                 </div>
-                <h2 className="text-lg font-extrabold text-slate-900 dark:text-orange-100">Enter the Spooky Quiz! 🎃</h2>
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-orange-100">Welcome to Quiz Bot! 🎃</h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-purple-300 mt-1">
-                  Choose your monstrous alias to submit answers and rise through the crypt.
+                  Choose a nickname to participate and submit answers.
                 </p>
               </div>
 
@@ -190,13 +189,13 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                 )}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-orange-300 uppercase tracking-wider mb-1">
-                    Your Monster Alias
+                    Your Nickname
                   </label>
                   <input
                     type="text"
                     value={inputNickname}
                     onChange={(e) => setInputNickname(e.target.value)}
-                    placeholder="e.g. CountDracula, Witchy99"
+                    placeholder="e.g. QuizMaster"
                     maxLength={25}
                     required
                     className="w-full px-3.5 py-2.5 border border-orange-300 dark:border-purple-800/80 bg-white dark:bg-[#1f1535] text-slate-900 dark:text-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-sm"
@@ -211,7 +210,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                     <Clock className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <span>Summon Player 🦇</span>
+                      <span>Register to Play 🎯</span>
                     </>
                   )}
                 </button>
@@ -225,7 +224,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                   🎃
                 </div>
                 <div>
-                  <div className="text-[11px] text-slate-500 dark:text-purple-400 font-medium">Haunting As</div>
+                  <div className="text-[11px] text-slate-500 dark:text-purple-400 font-medium">Logged in as</div>
                   <div className="text-sm font-bold text-slate-900 dark:text-orange-100">{nickname}</div>
                 </div>
               </div>
@@ -233,11 +232,11 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                 {isParticipant ? (
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                    In the Circle 🕯️
+                    In Game
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
-                    Spectating 🕸️
+                    Not in Game
                   </span>
                 )}
               </div>
@@ -254,22 +253,22 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                   }`}
                 />
                 <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-orange-200 uppercase tracking-wide">
-                  {gameState.is_active ? '🔥 Ritual in Progress' : '⚰️ Slumbering Crypt'}
+                  {gameState.is_active ? 'Game Active' : 'Game Inactive'}
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 text-xs text-slate-500 dark:text-purple-300">
                 <Users className="w-3.5 h-3.5 text-orange-500" />
-                <span>{participantCount} soul{participantCount === 1 ? '' : 's'} gathered</span>
+                <span>{participantCount} player{participantCount === 1 ? '' : 's'} joined</span>
               </div>
             </div>
 
             {/* If game is inactive */}
             {!gameState.is_active && (
               <div className="text-center py-6 space-y-2">
-                <div className="text-4xl mx-auto animate-bounce">🦇</div>
-                <h3 className="text-base font-bold text-slate-800 dark:text-orange-100">Waiting for Witch Host</h3>
+                <div className="text-3xl mx-auto">⏳</div>
+                <h3 className="text-base font-bold text-slate-800 dark:text-orange-100">Waiting for Host</h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-purple-300 max-w-xs mx-auto">
-                  The ritual cauldron has not yet been lit. Stay close—it will spark automatically!
+                  The host has not started the game yet. Stay on this screen—it will update automatically!
                 </p>
               </div>
             )}
@@ -278,7 +277,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             {gameState.is_active && nickname && !isParticipant && (
               <div className="space-y-3">
                 <div className="p-3 bg-orange-50 dark:bg-purple-950/60 rounded-xl border border-orange-200 dark:border-purple-800/60 text-orange-950 dark:text-orange-200 text-xs sm:text-sm">
-                  🎃 The trial has begun! Step inside the circle to answer questions.
+                  🎉 A game is in progress! Join in to submit answers and earn points.
                 </div>
                 {joinError && (
                   <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
@@ -294,7 +293,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                     <Clock className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <span>Enter the Ritual 🕯️</span>
+                      <span>Join Game 🎮</span>
                     </>
                   )}
                 </button>
@@ -308,16 +307,15 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                 {gameState.collecting_answers && gameState.current_question > 0 ? (
                   <div className="space-y-3">
                     <div className="bg-gradient-to-br from-orange-600 via-amber-600 to-purple-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg shadow-orange-500/20 text-center relative overflow-hidden">
-                      <div className="absolute -top-3 -right-3 text-4xl opacity-30 select-none">🕷️</div>
+                      <div className="absolute -top-3 -right-3 text-4xl opacity-30 select-none">🎃</div>
                       <div className="text-xs uppercase tracking-widest font-bold text-orange-200">
-                        Riddle Round
+                        Current Round
                       </div>
                       <div className="text-3xl font-black mt-0.5 tracking-tight glow-orange">
                         Question #{gameState.current_question}
                       </div>
                       <div className="text-xs text-orange-100/90 mt-1 flex items-center justify-center space-x-1">
-                        <Flame className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                        <span>The cauldron is accepting answers!</span>
+                        <span>Answers are currently being collected!</span>
                       </div>
                     </div>
 
@@ -326,10 +324,10 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                       <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-xl text-emerald-950 dark:text-emerald-200 text-xs sm:text-sm flex items-start space-x-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div>
-                          <span className="font-semibold">Cast Answer: </span>
+                          <span className="font-semibold">Your submitted answer: </span>
                           <span className="italic font-bold">"{submittedAnswer}"</span>
                           <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                            You may cast another answer to update your spell.
+                            You can type and submit again to update your answer.
                           </p>
                         </div>
                       </div>
@@ -350,14 +348,14 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                     <form onSubmit={handleSubmitAnswer} className="space-y-2.5">
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 dark:text-orange-300 uppercase tracking-wider mb-1 flex items-center justify-between">
-                          <span>Your Inscription</span>
+                          <span>Your Answer</span>
                           <span className="text-[10px] text-slate-400 dark:text-purple-400 lowercase">Fuzzy spell-check active</span>
                         </label>
                         <input
                           type="text"
                           value={answerText}
                           onChange={(e) => setAnswerText(e.target.value)}
-                          placeholder="Type your answer into the cauldron..."
+                          placeholder="Type your answer here..."
                           required
                           className="w-full px-3.5 py-3 border border-orange-300 dark:border-purple-800/80 bg-white dark:bg-[#1f1535] text-slate-900 dark:text-orange-100 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-sm shadow-inner"
                         />
@@ -372,7 +370,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                         ) : (
                           <>
                             <Send className="w-4 h-4" />
-                            <span>{submittedAnswer ? 'Update Spell 🔮' : 'Cast Answer 🔮'}</span>
+                            <span>{submittedAnswer ? 'Update Answer' : 'Submit Answer'}</span>
                           </>
                         )}
                       </button>
@@ -380,18 +378,18 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                   </div>
                 ) : gameState.grading_phase ? (
                   <div className="text-center py-6 px-3 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 rounded-xl space-y-2">
-                    <div className="text-3xl animate-pulse">🔮</div>
-                    <h3 className="text-sm font-bold text-purple-950 dark:text-orange-200">Witch Host is Scrying Answers 📊</h3>
+                    <div className="text-3xl">📊</div>
+                    <h3 className="text-sm font-bold text-purple-950 dark:text-orange-200">Grading in Progress 📊</h3>
                     <p className="text-xs text-purple-800 dark:text-purple-300">
-                      The cauldron has sealed. Answers are currently being evaluated!
+                      Submissions for this question are closed. The host is reviewing and grading answers.
                     </p>
                   </div>
                 ) : (
                   <div className="text-center py-6 px-3 bg-orange-50/60 dark:bg-[#1f1535]/60 border border-orange-200 dark:border-purple-900/60 rounded-xl space-y-2">
-                    <div className="text-3xl">🕸️</div>
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-orange-200">Awaiting Next Riddle</h3>
+                    <div className="text-3xl">⏳</div>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-orange-200">Waiting for Question</h3>
                     <p className="text-xs text-slate-600 dark:text-purple-300">
-                      Catch your breath! The host will awaken the next question shortly.
+                      The game is ready. The next question will appear here as soon as the host triggers it!
                     </p>
                   </div>
                 )}

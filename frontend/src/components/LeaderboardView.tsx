@@ -77,7 +77,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
                   )}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-purple-300">
-                  {player.score} of {player.total_questions} spells solved
+                  {player.score} of {player.total_questions} questions correct
                 </div>
               </div>
             </div>

@@ -55,6 +55,15 @@ export const App: React.FC = () => {
     }
   }, [userId, nickname]);
 
+  // Handler for admin logout (also drops expired/invalid sessions on 401)
+  const handleAdminLogout = useCallback(() => {
+    api.adminLogout().catch(() => {});
+    setAdminToken(null);
+    localStorage.removeItem('quiz_admin_token');
+    setDashboardData(null);
+    setRole('player');
+  }, []);
+
   // Fetch admin dashboard data
   const refreshAdminDashboard = useCallback(async () => {
     try {
@@ -63,10 +72,12 @@ export const App: React.FC = () => {
       setGameState(data.game_state);
       setLeaderboard(data.leaderboard);
       setParticipantCount(data.player_count);
-    } catch (e) {
-      // ignore
+    } catch (e: any) {
+      if (e?.status === 401) {
+        handleAdminLogout();
+      }
     }
-  }, []);
+  }, [handleAdminLogout]);
 
   // Sync state initially
   useEffect(() => {
@@ -203,11 +214,7 @@ export const App: React.FC = () => {
     refreshAdminDashboard();
   };
 
-  const handleAdminLogout = () => {
-    setAdminToken(null);
-    localStorage.removeItem('quiz_admin_token');
-    setRole('player');
-  };
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans transition-colors">

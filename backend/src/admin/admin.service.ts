@@ -1,6 +1,7 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, HttpException, HttpStatus, Logger, OnModuleInit } from '@nestjs/common';
+import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import { DatabaseService, GameState, LeaderboardEntry } from '../database/database.service';
-import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
+
 import { EventsGateway } from '../events/events.gateway';
 import { isFuzzyAnswerMatch } from '../common/fuzzy-matcher';
 
@@ -24,23 +25,99 @@ export interface DashboardData {
 }
 
 @Injectable()
-export class AdminService {
-  private readonly ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+export class AdminService implements OnModuleInit {
+  private readonly logger = new Logger(AdminService.name);
+  private adminPasswordHash: Buffer | null = null;
+  private readonly tokens = new Map<string, number>();
+  private readonly loginAttempts = new Map<string, { count: number; windowStart: number }>();
+  private readonly tokenTtlMinutes: number;
+  private readonly loginMaxAttempts: number;
+  private readonly loginWindowMs: number;
 
   constructor(
     private readonly db: DatabaseService,
-    private readonly rabbitmq: RabbitMQService,
     private readonly eventsGateway: EventsGateway,
-  ) {}
+  ) {
+    this.tokenTtlMinutes = Math.max(1, parseInt(process.env.ADMIN_TOKEN_TTL_MINUTES || '480', 10) || 480);
+    this.loginMaxAttempts = Math.max(1, parseInt(process.env.ADMIN_LOGIN_MAX_ATTEMPTS || '5', 10) || 5);
+    this.loginWindowMs = Math.max(1, parseInt(process.env.ADMIN_LOGIN_WINDOW_SECONDS || '60', 10) || 60) * 1000;
+  }
 
-  login(password: string): { success: boolean; token: string } {
-    if (password === this.ADMIN_PASSWORD) {
-      return {
-        success: true,
-        token: `admin_token_${Date.now()}`,
-      };
+  onModuleInit() {
+    const password = (process.env.ADMIN_PASSWORD || '').trim();
+    if (password.length < 8) {
+      throw new Error(
+        'ADMIN_PASSWORD is not set or too short (minimum 8 characters). ' +
+          'Set it in backend/.env or as an environment variable. Refusing to start with insecure admin access.',
+      );
     }
-    throw new UnauthorizedException('Invalid admin password');
+    this.adminPasswordHash = createHash('sha256').update(password).digest();
+    this.logger.log('Admin credentials loaded from ADMIN_PASSWORD environment variable');
+  }
+
+  login(password: string, clientIp: string = 'unknown'): { success: boolean; token: string; expires_in: number } {
+    this.assertWithinRateLimit(clientIp);
+
+    if (!this.verifyPassword(password)) {
+      throw new UnauthorizedException('Invalid admin password');
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const ttlSeconds = this.tokenTtlMinutes * 60;
+    this.tokens.set(token, Date.now() + ttlSeconds * 1000);
+    this.loginAttempts.delete(clientIp);
+
+    return {
+      success: true,
+      token,
+      expires_in: ttlSeconds,
+    };
+  }
+
+  validateToken(token: string): boolean {
+    if (!token) {
+      return false;
+    }
+    const expiresAt = this.tokens.get(token);
+    if (expiresAt === undefined) {
+      return false;
+    }
+    if (expiresAt <= Date.now()) {
+      this.tokens.delete(token);
+      return false;
+    }
+    return true;
+  }
+
+  logout(token: string): void {
+    if (token) {
+      this.tokens.delete(token);
+    }
+  }
+
+  private verifyPassword(password: string): boolean {
+    if (!this.adminPasswordHash || !password) {
+      return false;
+    }
+    const candidate = createHash('sha256').update(password).digest();
+    return timingSafeEqual(candidate, this.adminPasswordHash);
+  }
+
+  private assertWithinRateLimit(clientIp: string): void {
+    const now = Date.now();
+    const entry = this.loginAttempts.get(clientIp);
+    if (!entry || now - entry.windowStart >= this.loginWindowMs) {
+      this.loginAttempts.set(clientIp, { count: 1, windowStart: now });
+      return;
+    }
+    entry.count += 1;
+    if (entry.count > this.loginMaxAttempts) {
+      const retryAfter = Math.ceil((this.loginWindowMs - (now - entry.windowStart)) / 1000);
+      throw new HttpException(
+        `Too many login attempts. Try again in ${retryAfter} seconds.`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
   }
 
   getDashboardData(): DashboardData {
@@ -124,8 +201,8 @@ export class AdminService {
     this.db.clearCorrectAnswers();
     this.db.clearGameParticipants();
 
-    // Broadcast to Telegram users via RabbitMQ
-    this.rabbitmq.sendBroadcastAllUsers('🎮 Game started! Use /join_game to participate.');
+
+
 
     // Broadcast to Web users via Socket.IO
     this.eventsGateway.broadcastGameStarted();
@@ -147,7 +224,7 @@ export class AdminService {
     }
 
     // Broadcast before clearing participants
-    this.rabbitmq.sendBroadcast('🏁 Game ended! Thank you for participating.');
+
     this.eventsGateway.broadcastGameEnded();
 
     this.db.endGame();
@@ -172,8 +249,8 @@ export class AdminService {
     this.db.nextQuestion();
     const updatedState = this.db.getGameState();
 
-    // Broadcast to Telegram players
-    this.rabbitmq.sendBroadcast(`📝 Now answering to question ${updatedState.current_question}`);
+
+
 
     // Broadcast to Web players
     this.eventsGateway.broadcastQuestionStarted(updatedState.current_question);
@@ -196,8 +273,8 @@ export class AdminService {
     this.db.startGradingPhase();
     const updatedState = this.db.getGameState();
 
-    // Broadcast to Telegram players
-    this.rabbitmq.sendBroadcast('📊 Grading phase started! Answers are now being reviewed.');
+
+
 
     // Broadcast to Web players
     this.eventsGateway.broadcastGradingStarted();

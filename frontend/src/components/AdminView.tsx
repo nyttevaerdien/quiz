@@ -73,7 +73,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
     setActionLoading('start');
     try {
       await api.startGame();
-      showFeedback('🎮 Game started! Participants reset and Telegram broadcast sent.');
+      showFeedback('🎮 Game started! Participants reset.');
       onRefreshDashboard();
     } catch (err: any) {
       showFeedback(err.message, 'error');
@@ -220,7 +220,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Default: admin"
+              placeholder="Enter admin password"
               required
               className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
             />

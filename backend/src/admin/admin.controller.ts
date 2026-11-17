@@ -1,4 +1,6 @@
-import { Controller, Post, Get, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { AdminAuthGuard } from './admin-auth.guard';
+import { Public } from './public.decorator';
 import { AdminService } from './admin.service';
 
 export class AdminLoginDto {
@@ -15,12 +17,23 @@ export class SetAnswerKeyDto {
 }
 
 @Controller('api/admin')
+@UseGuards(AdminAuthGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Public()
   @Post('login')
-  login(@Body() body: AdminLoginDto) {
-    return this.adminService.login(body.password);
+  login(@Body() body: AdminLoginDto, @Req() req: any) {
+    const clientIp: string = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    return this.adminService.login(body.password, clientIp);
+  }
+
+  @Post('logout')
+  logout(@Req() req: any) {
+    const header: string = req.headers['authorization'] || '';
+    const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
+    this.adminService.logout(token);
+    return { success: true };
   }
 
   @Get('dashboard')

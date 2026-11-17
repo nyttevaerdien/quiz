@@ -2,12 +2,22 @@ import { DashboardData, LeaderboardEntry, PlayerStatusResponse } from '../types'
 
 const BASE_URL = '';
 
+const isAdminEndpoint = (endpoint: string): boolean =>
+  endpoint.startsWith('/api/admin') || endpoint === '/api/refresh' || endpoint === '/api/toggle_correct';
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options.headers || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
+
+  if (isAdminEndpoint(endpoint)) {
+    const token = localStorage.getItem('quiz_admin_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
 
   const res = await fetch(url, { ...options, headers });
   if (!res.ok) {
@@ -20,7 +30,9 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     } catch {
       // ignore
     }
-    throw new Error(errMessage);
+    const error = new Error(errMessage) as Error & { status?: number };
+    error.status = res.status;
+    throw error;
   }
   return res.json();
 }
@@ -53,9 +65,14 @@ export const api = {
 
   // Admin Endpoints
   adminLogin: (password: string) =>
-    request<{ success: boolean; token: string }>('/api/admin/login', {
+    request<{ success: boolean; token: string; expires_in: number }>('/api/admin/login', {
       method: 'POST',
       body: JSON.stringify({ password }),
+    }),
+
+  adminLogout: () =>
+    request<{ success: boolean }>('/api/admin/logout', {
+      method: 'POST',
     }),
 
   getAdminDashboard: () =>

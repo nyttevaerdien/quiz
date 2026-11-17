@@ -1,11 +1,15 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { AdminAuthGuard } from './admin-auth.guard';
+import { Public } from './public.decorator';
 import { AdminService } from './admin.service';
 import { ToggleCorrectDto } from './admin.controller';
 
 @Controller('api')
+@UseGuards(AdminAuthGuard)
 export class ApiCompatibilityController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Public()
   @Get('health')
   health() {
     return { status: 'healthy', service: 'quiz-backend-nest' };

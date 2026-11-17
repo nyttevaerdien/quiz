@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { DatabaseService, GameState, LeaderboardEntry } from '../database/database.service';
-import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
+
 import { EventsGateway } from '../events/events.gateway';
 import { AdminService } from '../admin/admin.service';
 import { isFuzzyAnswerMatch } from '../common/fuzzy-matcher';
@@ -10,7 +10,6 @@ import { v4 as uuidv4 } from 'uuid';
 export class PlayerService {
   constructor(
     private readonly db: DatabaseService,
-    private readonly rabbitmq: RabbitMQService,
     private readonly eventsGateway: EventsGateway,
     private readonly adminService: AdminService,
   ) {}
@@ -78,9 +77,7 @@ export class PlayerService {
     const participants = this.db.getGameParticipants();
     const count = Object.keys(participants).length;
 
-    // Broadcast via RabbitMQ to Telegram players
-    const notificationMessage = `👋 ${user.nickname} joined the game! (${count} players total)`;
-    this.rabbitmq.sendBroadcast(notificationMessage, userId);
+
 
     // Broadcast via Socket.IO to Web players
     this.eventsGateway.broadcastPlayerJoined(user.nickname, count, userId);
